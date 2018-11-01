@@ -15,27 +15,16 @@
 	<div id="main">
 		<div class="header">
 			<ul>
-				<li><a href="{:url('index')}">管理</a></li>
+				<li><a href="{:url('index')}">列表</a></li>
 				<li><a href="{:url('add')}">添加</a></li>
 			</ul>
 		</div>
-		<div class="wrapper">
-			<table>
-				<tr>
-					<th>ID</th>
-					<th>角色名</th>
-					<th>添加时间</th>
-					<th>操作</th>
-				</tr>
-				{volist name="items" id="vo"}
-				<tr>
-					<td>{$vo.id}</td>
-					<td>{$vo.auth_name}</td>
-					<td>{$vo.addtime|date="Y-m-d H:i:s",###}</td>
-					<td><a href="{:url('edit')}/id/{$vo.id}">编辑</a> <a href="{:url('del')}/id/{$vo.id}">删除</a></td>
-				</tr>
-				{/volist}
-			</table>
+		<div id="wrapper">
+			<form action="{:url('doedit')}" method="post">
+				权限名：<input type="text" name="auth_name" value="{$item.auth_name}"><br>
+				<input type="hidden" name="id" value="{$item.id}">
+				<input type="submit" value="提交">
+			</form>
 		</div>
 	</div>
 </body>

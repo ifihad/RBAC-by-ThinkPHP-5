@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 	<meta charset="UTF-8">
-	<title>权限管理</title>
+	<title>添加权限</title>
 </head>
 <body>
 	<div id="sidebar">
@@ -20,22 +20,10 @@
 			</ul>
 		</div>
 		<div class="wrapper">
-			<table>
-				<tr>
-					<th>ID</th>
-					<th>角色名</th>
-					<th>添加时间</th>
-					<th>操作</th>
-				</tr>
-				{volist name="items" id="vo"}
-				<tr>
-					<td>{$vo.id}</td>
-					<td>{$vo.auth_name}</td>
-					<td>{$vo.addtime|date="Y-m-d H:i:s",###}</td>
-					<td><a href="{:url('edit')}/id/{$vo.id}">编辑</a> <a href="{:url('del')}/id/{$vo.id}">删除</a></td>
-				</tr>
-				{/volist}
-			</table>
+			<form action="{:url('doadd')}" method="post">
+				权限名：<input type="text" name="auth_name"><br>
+				<input type="submit" value="提交">
+			</form>
 		</div>
 	</div>
 </body>
