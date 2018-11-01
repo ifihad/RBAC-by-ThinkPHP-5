@@ -1,12 +1,16 @@
 <?php
-// 管理员：后台的用户
-// 后台用户也不仅仅是管理员，比如网站编辑、作者、投稿等
+// 管理员：可看作是特殊的用户
+// 为了与前台用户区分，还是把“管理员”和“用户”（普通用户/付费用户/会员）分开
+// 这里的分开不仅仅是前台的菜单名，也包括数据库里的表
+// 比如这里的User控制器改为Admin控制器，数据库里的user表改为admin表
 namespace app\rbac\controller;
 use think\Controller;
 use think\Db;
 use think\Request;
+// 使用AdminModel避免与控制器名Admin冲突
+use app\rbac\model\Admin as AdminModel;
 
-class User extends Controller
+class Admin extends Controller
 {
 	public $db;
 	public $request;
@@ -19,8 +23,7 @@ class User extends Controller
 
 	public function index()
 	{
-		// $result = Db::table('rbac_user')->alias('a')->join('rbac_user_role b','a.id = b.user_id')->join('rbac_role c','c.id = b.role_id')->select();
-		$result = Db::table('rbac_user')->select();
+		$result = AdminModel::select();
 
 		// 遍历用户
 		foreach ($result as $v) {
@@ -90,18 +93,6 @@ class User extends Controller
 		// 获取所有角色
 		$roles = $this->get_all_roles();
 
-		// 已有的角色显示为“选中”状态
-		/*
-		foreach ($roles as $k => $v) {
-			foreach ($role as $v2) {
-				if ($v['role_name'] == $v2['name']) {
-					$roles[$k]['selected'] = ' selected="selected"';
-				} else {
-					$roles[$k]['selected'] = '';
-				}
-			}
-		}
-		*/
 		foreach ($roles as $k => $v) {
 			if (in_array($v['role_name'], $role)) {
 				$roles[$k]['selected'] = ' selected="selected"';
