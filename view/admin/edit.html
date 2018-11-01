@@ -5,18 +5,25 @@
 	<title>Document</title>
 </head>
 <body>
-	<form action="{:url('doedit')}" method="post">
-		用户名：<input type="text" name="username" value="{$item['username']}"><br>
-		昵称：<input type="text" name="nickname" value="{$item['nickname']}"><br>
-		<!-- 角色需要多选 -->
-		<!-- 用户与角色是多对多的关系 -->
-		角色：
-		<select name="role[]" multiple="multiple" size="2" style="height: 100px;">
-			{volist name="roles" id="vo"}
-			<option value="{$vo.id}"{$vo.selected}>{$vo.role_name}</option>
-			{/volist}
-		</select>
-		<input type="submit" value="提交">
-	</form>
+	<header>
+		<ul>
+			<li><a href="{:url('index')}">列表</a></li>
+			<li><a href="{:url('add')}">添加</a></li>
+		</ul>
+	</header>
+	<div id="wrapper">
+		<form action="{:url('doedit')}" method="post">
+			用户名：<input type="text" name="username" value="{$item['username']}"><br>
+			昵称：<input type="text" name="nickname" value="{$item['nickname']}"><br>
+			角色：
+			<select name="role[]" multiple="multiple" size="2" style="height: 100px;">
+				{volist name="roles" id="vo"}
+				<option value="{$vo.id}"{$vo.selected}>{$vo.role_name}</option>
+				{/volist}
+			</select>
+			<input type="hidden" name="id" value="{$item.id}">
+			<input type="submit" value="提交">
+		</form>
+	</div>
 </body>
 </html>

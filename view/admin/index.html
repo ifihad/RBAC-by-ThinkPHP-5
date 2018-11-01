@@ -5,31 +5,40 @@
 	<title>Document</title>
 </head>
 <body>
-	<header>
+	<div id="sidebar">
 		<ul>
-			<li>管理</li>
-			<li><a href="{:url('add')}">添加</a></li>
+			<li><a href="{:url('admin/index')}">管理员管理</a></li>
+			<li><a href="{:url('role/index')}">角色管理</a></li>
+			<li><a href="{:url('auth/index')}">权限管理</a></li>
 		</ul>
-	</header>
-	<div id="wrapper">
-		<table>
-			<tr>
-				<th>ID</th>
-				<th>用户名</th>
-				<th>昵称</th>
-				<th>角色</th>
-				<th>操作</th>
-			</tr>
-			{volist name="items" id="vo"}
-			<tr>
-				<td>{$vo.user_id}</td>
-				<td>{$vo.username}</td>
-				<td>{$vo.nickname}</td>
-				<td>{$vo.role}</td>
-				<td><a href="{:url('edit')}/id/{$vo.user_id}">编辑</a> <a href="">删除</a></td>
-			</tr>
-			{/volist}
-		</table>
+	</div>
+	<div id="main">
+		<div class="header">
+			<ul>
+				<li>管理</li>
+				<li><a href="{:url('add')}">添加</a></li>
+			</ul>
+		</div>
+		<div class="wrapper">
+			<table>
+				<tr>
+					<th>ID</th>
+					<th>用户名</th>
+					<th>昵称</th>
+					<th>角色</th>
+					<th>操作</th>
+				</tr>
+				{volist name="items" id="vo"}
+				<tr>
+					<td>{$vo.user_id}</td>
+					<td>{$vo.username}</td>
+					<td>{$vo.nickname}</td>
+					<td>{$vo.role}</td>
+					<td><a href="{:url('edit')}/id/{$vo.user_id}">编辑</a> <a href="{:url('del')}/id/{$vo.user_id}">删除</a></td>
+				</tr>
+				{/volist}
+			</table>
+		</div>
 	</div>
 </body>
 </html>

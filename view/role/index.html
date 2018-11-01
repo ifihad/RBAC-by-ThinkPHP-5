@@ -2,15 +2,41 @@
 <html lang="en">
 <head>
 	<meta charset="UTF-8">
-	<title>Document</title>
+	<title>角色管理</title>
 </head>
 <body>
-	<ul>
-		<li>导演</li>
-		<li>编剧</li>
-		<li>制片</li>
-		<li>摄影</li>
-		<li>演员</li>
-	</ul>
+	<div id="sidebar">
+		<ul>
+			<li><a href="{:url('admin/index')}">管理员管理</a></li>
+			<li><a href="{:url('role/index')}">角色管理</a></li>
+			<li><a href="{:url('auth/index')}">权限管理</a></li>
+		</ul>
+	</div>
+	<div id="main">
+		<div class="header">
+			<ul>
+				<li><a href="{:url('index')}">管理</a></li>
+				<li><a href="{:url('add')}">添加</a></li>
+			</ul>
+		</div>
+		<div class="wrapper">
+			<table>
+				<tr>
+					<th>ID</th>
+					<th>角色名</th>
+					<th>添加时间</th>
+					<th>操作</th>
+				</tr>
+				{volist name="items" id="vo"}
+				<tr>
+					<td>{$vo.id}</td>
+					<td>{$vo.role_name}</td>
+					<td>{$vo.addtime|date="Y-m-d H:i:s",###}</td>
+					<td><a href="{:url('edit')}/id/{$vo.id}">编辑</a> <a href="{:url('del')}/id/{$vo.id}">删除</a></td>
+				</tr>
+				{/volist}
+			</table>
+		</div>
+	</div>
 </body>
 </html>

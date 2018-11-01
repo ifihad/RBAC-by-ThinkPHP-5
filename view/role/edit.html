@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>Document</title>
+</head>
+<body>
+	<div id="sidebar">
+		<ul>
+			<li><a href="{:url('admin/index')}">管理员管理</a></li>
+			<li><a href="{:url('role/index')}">角色管理</a></li>
+			<li><a href="{:url('auth/index')}">权限管理</a></li>
+		</ul>
+	</div>
+	<div id="main">
+		<div class="header">
+			<ul>
+				<li><a href="{:url('index')}">列表</a></li>
+				<li><a href="{:url('add')}">添加</a></li>
+			</ul>
+		</div>
+		<div id="wrapper">
+			<form action="{:url('doedit')}" method="post">
+				角色名：<input type="text" name="role_name" value="{$item.role_name}"><br>
+				<input type="hidden" name="id" value="{$item.id}">
+				<input type="submit" value="提交">
+			</form>
+		</div>
+	</div>
+</body>
+</html>

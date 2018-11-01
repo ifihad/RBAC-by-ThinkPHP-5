@@ -2,23 +2,31 @@
 <html lang="en">
 <head>
 	<meta charset="UTF-8">
-	<title>Document</title>
+	<title>添加管理员</title>
 </head>
 <body>
-	<form action="{:url('doadd')}" method="post">
-		用户名：<input type="text" name="username"><br>
-		昵称：<input type="text" name="nickname"><br>
-		<!-- 角色需要多选 -->
-		<!-- 用户与角色是多对多的关系 -->
-		角色：
-		<select name="role[]" multiple="multiple" size="2" style="height: 100px;">
-			<option value="1">设计</option>
-			<option value="2">程序</option>
-			<option value="3">推广</option>
-			<option value="4">运营</option>
-			<option value="5">销售</option>
-		</select>
-		<input type="submit" value="提交">
-	</form>
+	<header>
+		<ul>
+			<li><a href="{:url('index')}">列表</a></li>
+			<li><a href="{:url('add')}">添加</a></li>
+		</ul>
+	</header>
+	<div id="wrapper">
+		<form action="{:url('doadd')}" method="post">
+			用户名：<input type="text" name="username"><br>
+			昵称：<input type="text" name="nickname"><br>
+			<!-- 角色需要多选 -->
+			<!-- 用户与角色是多对多的关系 -->
+			角色：
+			<select name="role[]" multiple="multiple" size="2" style="height: 100px;">
+				<option value="1">设计</option>
+				<option value="2">程序</option>
+				<option value="3">推广</option>
+				<option value="4">运营</option>
+				<option value="5">销售</option>
+			</select>
+			<input type="submit" value="提交">
+		</form>
+	</div>
 </body>
 </html>

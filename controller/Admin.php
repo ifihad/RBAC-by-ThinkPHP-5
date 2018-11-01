@@ -1,20 +1,17 @@
 <?php
 namespace app\rbac\controller;
 use think\Controller;
-use think\Db;
 use think\Request;
 use app\rbac\model\Admin as AdminModel;
 use app\rbac\model\Role as RoleModel;
-use app\rbac\model\UserRole as UserRoleModel;
+use app\rbac\model\AdminRole as AdminRoleModel;
 
 class Admin extends Controller
 {
-	public $db;
 	public $request;
 
 	public function initialize()
 	{
-		// $this->db = new Db();
 		$this->request = Request::instance();
 	}
 
@@ -24,11 +21,6 @@ class Admin extends Controller
 
 		// 遍历用户
 		foreach ($result as $v) {
-			// 每次循环前重新定义数组$item
-			// $item = array();
-			// 因为$item是通过指定的索引赋值的
-			// 所以不需要声明，每个索引对应的元素在每次循环中都被重新赋值
-
 			$user_id = $v['id'];
 			$item['user_id'] = $user_id;
 			$item['username'] = $v['username'];
@@ -36,10 +28,7 @@ class Admin extends Controller
 			$item['addtime'] = date('Y-m-d H:i:s', $v['addtime']);
 
 			// 获取用户角色
-			$result2 = UserRoleModel::where('user_id', $user_id)->select();
-			// 每次循环前都需要重新定义数组$role
-			// 因为$role是通过$role[]进行赋值的，是数值数组，下标为数字
-			// 下一次循环会用到上一次循环产生的数组元素
+			$result2 = AdminRoleModel::where('user_id', $user_id)->select();
 			$role = array();
 			foreach ($result2 as $v2) {
 				$role_id = $v2['role_id'];
@@ -68,20 +57,20 @@ class Admin extends Controller
 		$username = $param['username'];
 		$nickname = $param['nickname'];
 		$role = $param['role'];
-		$result = Db::table('rbac_user')->where('username', $username)->select();
+		$result = AdminModel::where('username', $username)->select();
 
 		if (!$result) {
 			$data['username'] = $username;
 			$data['nickname'] = $nickname;
 			$data['addtime'] = time();
-			$id = Db::table('rbac_user')->insertGetId($data);
+			$id = AdminModel::insertGetId($data);
 
 			unset($data);
 			foreach ($role as $v) {
 				$data['role_id'] = $v;
 				$data['user_id'] = $id;
 				$data['addtime'] = time();
-				Db::table('rbac_user_role')->insert($data);
+				AdminRoleModel::insert($data);
 			}
 
 			$this->success('添加成功', 'index', '', 1);
@@ -95,7 +84,7 @@ class Admin extends Controller
 		$request = Request::instance();
 		$param = $request->param();
 		$id = $param['id'];
-		$result = Db::table('rbac_user')->where('id', $id)->find();
+		$result = AdminModel::where('id', $id)->find();
 		$role = $this->get_role($id);
 		$result['role'] = $role;
 		// 获取所有角色
@@ -114,33 +103,55 @@ class Admin extends Controller
 		return view();
 	}
 
+	// 编辑是更新，不是插入
 	public function doedit()
 	{
 		$param = $this->request->param();
-
+		$id = $param['id'];
+		$role = $param['role'];
 		$username = $param['username'];
 		$nickname = $param['nickname'];
-		$role = $param['role'];
 
-		$result = Db::table('rbac_user')->where('username', $username)->update();
-		if (!$result) {
-			$data['username'] = $username;
-			$data['nickname'] = $nickname;
-			$data['addtime'] = time();
-			$id = Db::table('rbac_user')->insertGetId($data);
-
-			unset($data);
-			foreach ($role as $v) {
-				$data['role_id'] = $v;
-				$data['user_id'] = $id;
-				$data['addtime'] = time();
-				Db::table('rbac_user_role')->insert($data);
-			}
-
-			$this->success('添加成功', 'index', '', 1);
-		} else {
-			$this->error('用户名已存在！');
+		// 编辑操作的难点：角色的更新
+		// 目前想到的解决方法就是“先删除，再插入”
+		// 删除之前的角色
+		AdminRoleModel::where('user_id', $id)->delete();
+		// 插入新的角色
+		foreach ($role as $v) {
+			AdminRoleModel::insert([
+				'user_id' => $id,
+				'role_id' => $v,
+				'addtime' => time()
+			]);
 		}
+
+		// 最好不用username字段作为更新条件，除非username是不可变的
+		// 还是要用id
+		$result = AdminModel::where('id', $id)->update([
+			'username' => $username,
+			'nickname' => $nickname
+		]);
+
+		if ($result) {
+			$this->success('编辑成功！', 'index', '', 1);
+		} else {
+			$this->error('编辑失败！');
+		}
+	}
+
+	public function del($id)
+	{
+		$param = $this->request->param();
+		$id = (int)$param['id'];
+
+		// 删除用户
+		// 删除后的结果暂时就不判断了
+		// $result = AdminModel::where('id', $id)->delete();
+		AdminModel::where('id', $id)->delete();
+		// 删除对应的角色
+		AdminRoleModel::where('user_id', $id)->delete();
+
+		$this->success('删除成功！', 'index', '', 1);
 	}
 
 	/**
@@ -151,18 +162,14 @@ class Admin extends Controller
 	public function get_role($id)
 	{
 		// 根据用户ID获取角色ID
-		$result = Db::table('rbac_user_role')->field('role_id')->where('user_id', $id)->select();
+		$result = AdminRoleModel::field('role_id')->where('user_id', $id)->select();
 
 		// 根据角色ID获取角色名称
 		foreach ($result as $v) {
 			$role_id = $v['role_id'];
-			// $_role['id'] = $role_id;
-			$result = Db::table('rbac_role')->where('id', $role_id)->find();
-			// $_role['name'] = $result['role_name'];
-			// $role[] = $_role;
+			$result = RoleModel::where('id', $role_id)->find();
 			$role[] = $result['role_name'];
 		}
-		// $role = implode(',', $role);
 
 		return $role;
 	}
@@ -172,7 +179,8 @@ class Admin extends Controller
 	 */
 	public function get_all_roles()
 	{
-		$result = Db::table('rbac_role')->select();
+		$result = RoleModel::select();
 		return $result;
 	}
 }
+
