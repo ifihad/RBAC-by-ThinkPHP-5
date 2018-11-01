@@ -1,14 +1,11 @@
 <?php
-// 管理员：可看作是特殊的用户
-// 为了与前台用户区分，还是把“管理员”和“用户”（普通用户/付费用户/会员）分开
-// 这里的分开不仅仅是前台的菜单名，也包括数据库里的表
-// 比如这里的User控制器改为Admin控制器，数据库里的user表改为admin表
 namespace app\rbac\controller;
 use think\Controller;
 use think\Db;
 use think\Request;
-// 使用AdminModel避免与控制器名Admin冲突
 use app\rbac\model\Admin as AdminModel;
+use app\rbac\model\Role as RoleModel;
+use app\rbac\model\UserRole as UserRoleModel;
 
 class Admin extends Controller
 {
@@ -27,19 +24,30 @@ class Admin extends Controller
 
 		// 遍历用户
 		foreach ($result as $v) {
+			// 每次循环前重新定义数组$item
+			// $item = array();
+			// 因为$item是通过指定的索引赋值的
+			// 所以不需要声明，每个索引对应的元素在每次循环中都被重新赋值
+
 			$user_id = $v['id'];
 			$item['user_id'] = $user_id;
 			$item['username'] = $v['username'];
 			$item['nickname'] = $v['nickname'];
 			$item['addtime'] = date('Y-m-d H:i:s', $v['addtime']);
+
 			// 获取用户角色
-			$result2 = Db::table('rbac_user_role')->where('user_id', $user_id)->select();
+			$result2 = UserRoleModel::where('user_id', $user_id)->select();
+			// 每次循环前都需要重新定义数组$role
+			// 因为$role是通过$role[]进行赋值的，是数值数组，下标为数字
+			// 下一次循环会用到上一次循环产生的数组元素
+			$role = array();
 			foreach ($result2 as $v2) {
 				$role_id = $v2['role_id'];
-				$result3 = Db::table('rbac_role')->where('id', $role_id)->find();
-				$_role[] = $result3['role_name'];
-			}		
-			$item['role'] = implode(',', $_role);
+				$result3 = RoleModel::where('id', $role_id)->find();
+				$role[] = $result3['role_name'];
+			}
+
+			$item['role'] = implode(',', $role);
 
 			$items[] = $item;
 		}
