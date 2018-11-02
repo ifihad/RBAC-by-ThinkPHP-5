@@ -2,11 +2,11 @@
 namespace app\rbac\controller;
 use think\Controller;
 use think\Request;
-use app\rbac\model\Admin as AdminModel;
+use app\rbac\model\Users as UsersModel;
 use app\rbac\model\Role as RoleModel;
-use app\rbac\model\AdminRole as AdminRoleModel;
+use app\rbac\model\AdminRole as UsersRolesModel;
 
-class Admin extends Controller
+class Users extends Controller
 {
 	public $request;
 
@@ -17,7 +17,7 @@ class Admin extends Controller
 
 	public function index()
 	{
-		$result = AdminModel::select();
+		$result = UsersModel::select();
 
 		// 遍历用户
 		foreach ($result as $v) {
@@ -28,7 +28,7 @@ class Admin extends Controller
 			$item['addtime'] = date('Y-m-d H:i:s', $v['addtime']);
 
 			// 获取用户角色
-			$result2 = AdminRoleModel::where('user_id', $user_id)->select();
+			$result2 = UsersRolesModel::where('user_id', $user_id)->select();
 			$role = array();
 			foreach ($result2 as $v2) {
 				$role_id = $v2['role_id'];
@@ -57,20 +57,20 @@ class Admin extends Controller
 		$username = $param['username'];
 		$nickname = $param['nickname'];
 		$role = $param['role'];
-		$result = AdminModel::where('username', $username)->select();
+		$result = UsersModel::where('username', $username)->select();
 
 		if (!$result) {
 			$data['username'] = $username;
 			$data['nickname'] = $nickname;
 			$data['addtime'] = time();
-			$id = AdminModel::insertGetId($data);
+			$id = UsersModel::insertGetId($data);
 
 			unset($data);
 			foreach ($role as $v) {
 				$data['role_id'] = $v;
 				$data['user_id'] = $id;
 				$data['addtime'] = time();
-				AdminRoleModel::insert($data);
+				UsersRolesModel::insert($data);
 			}
 
 			$this->success('添加成功', 'index', '', 1);
@@ -84,7 +84,7 @@ class Admin extends Controller
 		$request = Request::instance();
 		$param = $request->param();
 		$id = $param['id'];
-		$result = AdminModel::where('id', $id)->find();
+		$result = UsersModel::where('id', $id)->find();
 		$role = $this->get_role($id);
 		$result['role'] = $role;
 		// 获取所有角色
@@ -115,10 +115,10 @@ class Admin extends Controller
 		// 编辑操作的难点：角色的更新
 		// 目前想到的解决方法就是“先删除，再插入”
 		// 删除之前的角色
-		AdminRoleModel::where('user_id', $id)->delete();
+		UsersRolesModel::where('user_id', $id)->delete();
 		// 插入新的角色
 		foreach ($role as $v) {
-			AdminRoleModel::insert([
+			UsersRolesModel::insert([
 				'user_id' => $id,
 				'role_id' => $v,
 				'addtime' => time()
@@ -127,7 +127,7 @@ class Admin extends Controller
 
 		// 最好不用username字段作为更新条件，除非username是不可变的
 		// 还是要用id
-		$result = AdminModel::where('id', $id)->update([
+		$result = UsersModel::where('id', $id)->update([
 			'username' => $username,
 			'nickname' => $nickname
 		]);
@@ -146,10 +146,10 @@ class Admin extends Controller
 
 		// 删除用户
 		// 删除后的结果暂时就不判断了
-		// $result = AdminModel::where('id', $id)->delete();
-		AdminModel::where('id', $id)->delete();
+		// $result = UsersModel::where('id', $id)->delete();
+		UsersModel::where('id', $id)->delete();
 		// 删除对应的角色
-		AdminRoleModel::where('user_id', $id)->delete();
+		UsersRolesModel::where('user_id', $id)->delete();
 
 		$this->success('删除成功！', 'index', '', 1);
 	}
@@ -162,7 +162,7 @@ class Admin extends Controller
 	public function get_role($id)
 	{
 		// 根据用户ID获取角色ID
-		$result = AdminRoleModel::field('role_id')->where('user_id', $id)->select();
+		$result = UsersRolesModel::field('role_id')->where('user_id', $id)->select();
 
 		// 根据角色ID获取角色名称
 		foreach ($result as $v) {

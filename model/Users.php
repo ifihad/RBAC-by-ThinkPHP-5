@@ -2,7 +2,7 @@
 namespace app\rbac\model;
 use think\Model;
 
-class Admin extends Model
+class Users extends Model
 {
 	
 }
